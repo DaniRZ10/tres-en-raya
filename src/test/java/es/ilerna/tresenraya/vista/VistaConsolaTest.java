@@ -27,7 +27,8 @@ class VistaConsolaTest {
         Scanner scanner = new Scanner(new ByteArrayInputStream(entrada.getBytes(StandardCharsets.UTF_8)),
                 StandardCharsets.UTF_8);
         new VistaConsola(scanner, salida).iniciar();
-        return buffer.toString(StandardCharsets.UTF_8);
+        // println() usa el salto de línea del sistema (\r\n en Windows); se normaliza a \n
+        return buffer.toString(StandardCharsets.UTF_8).replace(System.lineSeparator(), "\n");
     }
 
     private int apariciones(String texto, String buscado) {
