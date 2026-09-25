@@ -1,0 +1,72 @@
+schema: spec-driven
+
+context: |
+  Language: es
+  All artifacts must be written in es.
+  Keep OpenSpec structural headings and SHALL/MUST keywords in English.
+
+  # Proyecto: Tres en Raya (ejercicio de repaso, Despliegue de Aplicaciones Web 2026/27, ILERNA)
+
+  ## Stack
+  Java 21+ (maven.compiler.release 21), Maven, JUnit 5. Aplicación de consola (CLI).
+  Sin más dependencias ni plugins (nada de Checkstyle, JaCoCo, Lombok...).
+
+  ## Contrato inamovible (diagrama UML del enunciado)
+  Se respetan EXACTAMENTE nombres, firmas, visibilidades y relaciones. Prohibido añadir
+  métodos públicos, getters o atributos no presentes en el diagrama.
+
+  enum Ficha { X, O; + siguiente(): Ficha }  // única responsabilidad: calcular el siguiente turno
+
+  Partida
+    - turno: Ficha
+    - tablero: Tablero
+    + Partida(int)
+    + jugar(int, int): void
+    + terminada(): boolean
+    + ganador(): Ficha
+    + toString(): String
+
+  Tablero  (agrega Fichas mediante el atributo - tablero)
+    - tablero: Ficha[][]
+    + Tablero(int)
+    + jugar(Ficha, int, int): boolean
+    + estaLleno(): boolean
+    + gana(Ficha): boolean
+    # ganaHorizontal(Ficha): boolean
+    # ganaVertical(Ficha): boolean
+    # ganaDiagonalDirecta(Ficha): boolean
+    # ganaDiagonalIndirecta(Ficha): boolean
+    + toString(): String
+    - valueOf(Ficha): Object
+
+  ## Reparto de responsabilidades (texto del enunciado)
+  - La Partida tiene un Tablero y controla el turno; puede jugar() sobre una fila y columna,
+    sabe si está terminada() y qué Ficha es la del ganador().
+  - Ficha calcula el siguiente() turno; es su única responsabilidad.
+  - Partida.jugar() pide jugar() al Tablero indicando ficha, fila y columna; el Tablero responde
+    si es posible o no (casilla ocupada).
+  - terminada(): el Tablero estudia si estaLleno() o si alguna ficha gana(); se gana en
+    horizontal, vertical o cualquiera de las dos diagonales (cuatro métodos auxiliares).
+  - Partida y Tablero se pintan con sus toString().
+
+  ## Decisiones de interpretación
+  1. El int de los constructores es la dimensión n del tablero (3 = clásico). Se gana
+     completando una fila, columna o diagonal entera.
+  2. El turno inicial es X.
+  3. ganador() devuelve la Ficha ganadora, o null si no hay (empate o partida en curso).
+  4. Partida.jugar() delega en Tablero.jugar(turno, fila, columna) y solo si devuelve true hace
+     turno = turno.siguiente(). Si la partida ya está terminada no hace nada.
+  5. Tablero.jugar() devuelve false si la casilla está ocupada o fuera de rango.
+  6. valueOf devuelve la propia Ficha, o "-" si la casilla está vacía (null): por eso devuelve Object.
+  7. Se juega por consola. La vista (es.ilerna.tresenraya.vista.VistaConsola) solo usa la API
+     pública de Partida: imprime partida.toString() y lee "fila columna" (1..n). Como jugar() es
+     void, para detectar una jugada rechazada compara partida.toString() antes y después.
+
+  ## Convenciones
+  Paquetes es.ilerna.tresenraya.{modelo,vista}. Javadoc en métodos públicos y protected.
+  Tests JUnit 5 en el mismo paquete (acceso a protected). Conventional Commits en español.
+  Flujo GitFlow: feature/* desde develop, merge --no-ff a develop; release/* a main con tag.
+
+rules:
+  tasks:
+    - Cada tarea debe poder verificarse (compilar, test o prueba manual concreta)
