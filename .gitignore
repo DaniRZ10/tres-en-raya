@@ -1,0 +1,14 @@
+# Java
+*.class
+*.jar
+*.log
+hs_err_pid*
+
+# Maven
+target/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+.antigravity/
